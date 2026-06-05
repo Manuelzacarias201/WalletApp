@@ -32,21 +32,32 @@ class TransactionService {
     }
   }
 
-  /// Crea una nueva transacción (POST)
-  Future<TransactionModel> createTransaction(TransactionModel transaction) async {
+  /// Actualiza una transacción existente (PUT)
+  Future<TransactionModel> updateTransaction(String id, TransactionModel transaction) async {
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/transactions'),
+      final response = await http.put(
+        Uri.parse('$_baseUrl/transactions/$id'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(transaction.toJson()),
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         return TransactionModel.fromJson(json.decode(response.body));
-      } else if (response.statusCode == 400) {
-        throw Exception('400: Datos de transacción inválidos');
       } else {
-        throw Exception('Error al crear transacción: ${response.statusCode}');
+        throw Exception('Error al actualizar: ${response.statusCode}');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Elimina una transacción (DELETE)
+  Future<void> deleteTransaction(String id) async {
+    try {
+      final response = await http.delete(Uri.parse('$_baseUrl/transactions/$id'));
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Error al eliminar: ${response.statusCode}');
       }
     } catch (e) {
       rethrow;

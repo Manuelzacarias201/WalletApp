@@ -37,14 +37,28 @@ class TransactionViewModel extends ChangeNotifier {
     }
   }
 
-  // Lógica: Agregar transacción (Simulación para el ejemplo)
-  Future<void> addTransaction(TransactionModel tx) async {
+  // Lógica: Actualizar transacción
+  Future<void> updateTransaction(String id, TransactionModel tx) async {
     _isLoading = true;
     notifyListeners();
-
     try {
-      final newTx = await _service.createTransaction(tx);
-      _transactions.insert(0, newTx);
+      await _service.updateTransaction(id, tx);
+      await fetchTransactions(); // Recargar lista
+    } catch (e) {
+      _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Lógica: Eliminar transacción
+  Future<void> deleteTransaction(String id) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _service.deleteTransaction(id);
+      _transactions.removeWhere((t) => t.id == id);
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
